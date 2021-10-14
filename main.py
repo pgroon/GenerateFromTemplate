@@ -1,10 +1,12 @@
 from lxml import etree as ET
 from zipfile import ZipFile
-import tempfile, os, argparse
+import os
+import argparse
 
 
 parser = argparse.ArgumentParser(description='Generate greeting letter from template and user data./n'
-                                             'Required data: NAME, EMAIL, PASSWORD, COMPUTER, ROOM, USERNAME, PRINTER, TEMPLATE-FILENAME')
+                                             'Required data: NAME, EMAIL, PASSWORD, COMPUTER, ROOM,/n '
+                                             'USERNAME, PRINTER, TEMPLATE-FILENAME')
 parser.add_argument("FIRST", help="Vorname", type=str)
 parser.add_argument("LAST", help="Nachname", type=str)
 parser.add_argument("EMAIL", help="Email addresse", type=str)
@@ -30,7 +32,7 @@ tree = ET.parse(tmplXML)
 
 # 3. Perfom search/replace on the tree
 for element in tree.iter():
-    if not (element.text == None) and (marker in element.text):
+    if not (element.text is None) and (marker in element.text):
         key = element.text.split("__")[0]
         element.text = data.get(key)
 
@@ -39,11 +41,21 @@ filename = "./content1.xml"
 with open(filename, 'wb') as destFile:
     tree.write(destFile, xml_declaration=True, pretty_print=True, encoding='utf-8')
 
-#TODO:   5. Export final file
-#TODO:       5.1 Extract .odt
-#TODO:       5.2 replace old content.xml with the newly generated one
-#TODO:       5.3 zip the contents again and convert to .odt
-#TODO:       5.4 export as PDF (?)
+# 5. Generate zip file and rename to .odt
+dirName = r'/home/grunwald/exp/test'
+outFileName = 'welcome_' + data['LAST']
+os.chdir(os.path.dirname(dirName))
+with zipfile.ZipFile((outFileName + '.odt'),
+                     "w",
+                     zipfile.ZIP_DEFLATED,
+                     allowZip64=True) as zf:
+    for root, _, filenames in os.walk(os.path.basename(dirName)):
+        for name in filenames:
+            name = os.path.join(root, name)
+            name = os.path.normpath(name)
+            zf.write(name, name)
+
+
 #TODO:   6. Move new file to proper location (Wherever that is)
 
 #print(ET.tostring(tree, encoding="unicode", pretty_print=True))
