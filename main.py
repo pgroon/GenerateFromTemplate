@@ -25,7 +25,7 @@ parser.add_argument("TEMPLATE", help="name der Template-Datei inkl. der Dateiend
 data = vars(parser.parse_args())
 
 # Define some more variables:
-homeDir = r'/home/grunwald/exp/'
+homeDir = r'/home/user/template-dir/'
 outFileName = 'welcome_' + data['LAST']
 marker = "__"
 data['NAME'] = (data['FIRST'] + ' ' + data['LAST'])
